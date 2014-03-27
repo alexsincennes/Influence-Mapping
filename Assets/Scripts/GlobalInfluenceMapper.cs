@@ -6,13 +6,22 @@ using System.Collections;
 [RequireComponent(typeof(MeshRenderer))]
 public class GlobalInfluenceMapper : MonoBehaviour
 {
-	public Unit target;
+	public GameObject unit_obj;
+	private Unit unit;
+
 	public Terrain terrain;
+
+	private const int size = 100;
+	private float[,] values;
 	
 	// Use this for initialization
 	void Start ()
 	{
+		unit = unit_obj.GetComponent<Unit>();
+		values = new float[size,size];
 
+		GetValues();
+		CreateMapTexture();
 	}
 
 	// Update is called once per frame
@@ -20,19 +29,43 @@ public class GlobalInfluenceMapper : MonoBehaviour
 	{
 
 	}
-	
+
+	void GetValues()
+	{
+		for(int x = 0 ; x < size; x ++ )
+		{
+			for(int z = 0; z < size; z++)
+			{
+				Vector3 pos = new Vector3(x,0.5f, z);
+				float friend_influence_value 	= unit.FriendInfluence(pos);
+				float foe_influence_value		= unit.FoeInfluence(pos);
+				float influences_value			= unit.TotalInfluence(friend_influence_value, foe_influence_value);
+				// scaled for viewability
+				float tension_value 			= 0.5f * unit.TotalTension(friend_influence_value, foe_influence_value);
+				float vulnerability_value		= unit.TotalVulnerability(tension_value, influences_value);
+				float terrain_value 			= unit.TerrainValue(pos);
+
+				values[x,z] = terrain_value;
+			}
+		}		
+	}
+
 	void CreateMapTexture() 
 	{	
-		/*
-		int texSide = terrain.terrainData.size * terrain.terrainData.size;
-		Texture2D texture = new Texture2D(texSide, texSide);
+		Texture2D texture = new Texture2D(size, size);
 		
-		for(int h=0; h < texSide; h++) 
+		for(int h=0; h < size; h++) 
 		{
-			for(int w=0; w < texSide; w++) 
+			for(int w=0; w < size; w++) 
 			{
-				Color[] c =  tiles_array[ (int)GetTextureValueAt(w,h) ];
-				texture.SetPixels(w*tile_resolution, h*tile_resolution, tile_resolution, tile_resolution, c);
+				
+				Color c;
+				if (values[w,h] < 0)
+					c = new Color(-values[w,h], 0, 0);
+				else
+					c = new Color(0, values[w,h], 0);
+
+				texture.SetPixel(w,h,c);
 			}
 		}
 		
@@ -42,7 +75,7 @@ public class GlobalInfluenceMapper : MonoBehaviour
 		
 		MeshRenderer mesh_renderer = GetComponent<MeshRenderer>();
 		mesh_renderer.sharedMaterials[0].mainTexture = texture;
-		*/
+
 	}
 }
 
