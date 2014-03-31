@@ -46,10 +46,25 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\Behaviour Tree\Decorators\DecoratorNode.cs" />
+     <Compile Include="Assets\Scripts\Behaviour Tree\Decorators\LimitNode.cs" />
+     <Compile Include="Assets\Scripts\Behaviour Tree\Decorators\NotNode.cs" />
+     <Compile Include="Assets\Scripts\Behaviour Tree\Decorators\RandomFailNode.cs" />
+     <Compile Include="Assets\Scripts\Behaviour Tree\Decorators\UntilFailNode.cs" />
+     <Compile Include="Assets\Scripts\Behaviour Tree\InnerNode.cs" />
+     <Compile Include="Assets\Scripts\Behaviour Tree\Leafs\AlwaysFalse.cs" />
+     <Compile Include="Assets\Scripts\Behaviour Tree\Leafs\AlwaysTrue.cs" />
+     <Compile Include="Assets\Scripts\Behaviour Tree\Leafs\Leaf.cs" />
+     <Compile Include="Assets\Scripts\Behaviour Tree\Node.cs" />
+     <Compile Include="Assets\Scripts\Behaviour Tree\Selectors\RandomSelectorNode.cs" />
+     <Compile Include="Assets\Scripts\Behaviour Tree\Selectors\SelectorNode.cs" />
+     <Compile Include="Assets\Scripts\Behaviour Tree\Sequences\RandomSequenceNode.cs" />
+     <Compile Include="Assets\Scripts\Behaviour Tree\Sequences\SequenceNode.cs" />
      <Compile Include="Assets\Scripts\BoundingShape.cs" />
      <Compile Include="Assets\Scripts\GlobalInfluenceMapper.cs" />
+     <Compile Include="Assets\Scripts\Infantry.cs" />
+     <Compile Include="Assets\Scripts\InfluenceMapper.cs" />
      <Compile Include="Assets\Scripts\LocalInfluenceMapper.cs" />
-     <Compile Include="Assets\Scripts\PositionalData.cs" />
      <Compile Include="Assets\Scripts\TerrainManager.cs" />
      <Compile Include="Assets\Scripts\Unit.cs" />
      <Compile Include="Assets\Scripts\Weapon.cs" />
