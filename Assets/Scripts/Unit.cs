@@ -65,7 +65,7 @@ public class Unit : MonoBehaviour
 
 	Node InitUnitAI ()
 	{
-		/*
+
 		Leaf locally_outnumbered = new Leaf(new System.Func<bool>( () => {
 			CountUnitsClose();
 			return enemies_close > friendlies_close;
@@ -82,11 +82,11 @@ public class Unit : MonoBehaviour
 			return true;
 		}));
 
-		Leaf close_to_friend = new Leaf(new System.Func<bool>( () => {
-			GameObject[] friends =GameObject.FindGameObjectsWithTag("Team_" + TEAM.A.ToString);
+		Leaf eliminate_collision_vectors = new Leaf(new System.Func<bool>( () => {
+			//Collider[] hits = 
+			return true;
 		}));
 
-`		*/
 		SelectorNode root = new SelectorNode(new List<Node> { 
 
 		});
@@ -180,6 +180,22 @@ public class Unit : MonoBehaviour
 			enemies_close = team_A_count;
 			friendlies_close = team_B_count;
 		}
+	}
+
+	Unit[] GetFriendsTooClose()
+	{
+		List<Unit> friends = new List<Unit>();
+
+		Collider[] hitColliders = Physics.OverlapSphere(this.transform.position, friend_too_close_range);
+
+		foreach (Collider hit in hitColliders)
+		{
+			if(hit.gameObject.tag.Equals("Team_A"))
+				friends.Add (hit.gameObject.GetComponent<Unit>());
+
+		}
+
+		return friends.ToArray();
 	}
 	
 
