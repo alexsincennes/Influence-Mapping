@@ -61,13 +61,14 @@
      <Compile Include="Assets\Scripts\Behaviour Tree\Sequences\RandomSequenceNode.cs" />
      <Compile Include="Assets\Scripts\Behaviour Tree\Sequences\SequenceNode.cs" />
      <Compile Include="Assets\Scripts\BoundingShape.cs" />
-     <Compile Include="Assets\Scripts\GlobalInfluenceMapper.cs" />
-     <Compile Include="Assets\Scripts\Infantry.cs" />
+     <Compile Include="Assets\Scripts\InfluenceMapRenderer.cs" />
      <Compile Include="Assets\Scripts\InfluenceMapper.cs" />
-     <Compile Include="Assets\Scripts\LocalInfluenceMapper.cs" />
+     <Compile Include="Assets\Scripts\MeleeWeapon.cs" />
+     <Compile Include="Assets\Scripts\Movement.cs" />
+     <Compile Include="Assets\Scripts\RangedWeapon.cs" />
+     <Compile Include="Assets\Scripts\Soldier.cs" />
      <Compile Include="Assets\Scripts\TerrainManager.cs" />
      <Compile Include="Assets\Scripts\Unit.cs" />
-     <Compile Include="Assets\Scripts\Weapon.cs" />
      <None Include="Assets\Standard Assets\Skyboxes\_skybox info.txt" />
      <None Include="Assets\Standard Assets\Water (Basic)\Sources\Shaders\FX-Water Simple.shader" />
   </ItemGroup>

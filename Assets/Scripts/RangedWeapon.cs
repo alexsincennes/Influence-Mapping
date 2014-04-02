@@ -1,11 +1,11 @@
 using UnityEngine;
 using System.Collections;
 
-public class Weapon : MonoBehaviour
+public class RangedWeapon : MonoBehaviour
 {
 	
 	// weapon data
-	// to be replaced with weapon type enums
+	public float damage = 10.0f;
 	public float range;
 	public float accuracy;
 	public float reload_time;

@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 namespace AssemblyCSharp
 {
+	// logical influence mapping
 	public static class InfluenceMapper
 	{
 		public static float FriendInfluence(Unit u, Vector3 pos)

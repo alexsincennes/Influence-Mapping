@@ -1,10 +1,11 @@
 using UnityEngine;
 using System.Collections;
+using AssemblyCSharp;
 
 [ExecuteInEditMode]
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
-public class GlobalInfluenceMapper : MonoBehaviour
+public class InfluenceMapRenderer : MonoBehaviour
 {
 	public GameObject unit_obj;
 	private Unit unit;
@@ -36,18 +37,18 @@ public class GlobalInfluenceMapper : MonoBehaviour
 		{
 			for(int z = 0; z < size; z++)
 			{
-				/*
+				
 				Vector3 pos = new Vector3(x,0.5f, z);
-				float friend_influence_value 	= unit.FriendInfluence(pos);
-				float foe_influence_value		= unit.FoeInfluence(pos);
-				float influences_value			= unit.TotalInfluence(friend_influence_value, foe_influence_value);
+				float friend_influence_value 	= InfluenceMapper.FriendInfluence(unit, pos);
+				float foe_influence_value		= InfluenceMapper.FoeInfluence(unit, pos);
+				float influences_value			= InfluenceMapper.TotalInfluence(friend_influence_value, foe_influence_value);
 				// scaled for viewability
-				float tension_value 			= unit.TotalTension(friend_influence_value, foe_influence_value);
-				float vulnerability_value		= unit.TotalVulnerability(tension_value, influences_value);
-				float terrain_value 			= unit.TerrainValue(pos);
+				float tension_value 			= InfluenceMapper.TotalTension(friend_influence_value, foe_influence_value);
+				float vulnerability_value		= InfluenceMapper.TotalVulnerability(tension_value, influences_value);
+				float terrain_value 			= InfluenceMapper.TerrainValue(terrain, pos);
 
 				values[x,z] = vulnerability_value;
-				*/
+				
 			}
 		}		
 	}
