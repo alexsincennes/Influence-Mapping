@@ -67,8 +67,10 @@ namespace AssemblyCSharp
 			// take into account the various fields of other
 			// to adjust the influence value
 			float r = Vector3.Distance(pos, other.transform.position);
-			
-			float ans = 1/Mathf.Pow(1.1f,r);
+
+			// scale by 1000 to prevent float values being too close to each other
+
+			float ans = other.currentSoldierNumber/Mathf.Pow(1.1f,r);
 			
 			//if (!other.team.Equals(this.team))
 			//	ans = -ans;

@@ -33,16 +33,15 @@ public class InfluenceMapRenderer : MonoBehaviour
 
 	void GetValues()
 	{
-		for(int x = 0 ; x < size; x ++ )
+		for(int x = 0; x < size; x++)
 		{
 			for(int z = 0; z < size; z++)
 			{
 				
-				Vector3 pos = new Vector3(x,0.5f, z);
+				Vector3 pos = new Vector3(this.transform.position.x - size/2 + x,0.5f, (int)this.transform.position.z - size/2 + z);
 				float friend_influence_value 	= InfluenceMapper.FriendInfluence(unit, pos);
 				float foe_influence_value		= InfluenceMapper.FoeInfluence(unit, pos);
 				float influences_value			= InfluenceMapper.TotalInfluence(friend_influence_value, foe_influence_value);
-				// scaled for viewability
 				float tension_value 			= InfluenceMapper.TotalTension(friend_influence_value, foe_influence_value);
 				float vulnerability_value		= InfluenceMapper.TotalVulnerability(tension_value, influences_value);
 				float terrain_value 			= InfluenceMapper.TerrainValue(terrain, pos);

@@ -27,7 +27,9 @@ public class Unit : MonoBehaviour
 	public enum TROOP_TYPE {INFANTRY, ARTILLERY, CAVALRY};
 	public TROOP_TYPE type = TROOP_TYPE.INFANTRY;
 	
-	public int soldier_number = 1;
+	public int spawnSoldierNumber = 1;
+
+	public int currentSoldierNumber;
 	
 	// enemy counting
 	int friendlies_close;
@@ -44,6 +46,7 @@ public class Unit : MonoBehaviour
 	private float[] local_influences_values;
 	private float[] local_tension_values;
 	private float[] local_vulnerability_values;
+	private float[] local_formation_vuln_values;
 	private float[] terrain_values;
 
 	private Node root;
@@ -52,21 +55,24 @@ public class Unit : MonoBehaviour
 	void Start ()
 	{
 		// spawn soldiers of unit
-		soldiersInUnit = new GameObject[soldier_number];
+		soldiersInUnit = new GameObject[spawnSoldierNumber];
 			
 		// spawn troops
-		for(int i=0; i < soldier_number; i++)
+		for(int i=0; i < spawnSoldierNumber; i++)
 		{	
 			// assume soldier takes 1.2 x 1.2 space. change if this is untrue later
-			Vector3 pos = new Vector3( -boundingShape.GetPaddedCornerX() + this.transform.position.x + (i * 1.2f) % boundingShape.shape_corner.x, 0 , boundingShape.GetPaddedCornerY() + this.transform.position.z - 1.2f * (int)((i* 1.2f)/boundingShape.shape_corner.x) );
+			Vector3 pos = SetSoldierLineFormation(i);
 			// adjust position for height
 			pos = new Vector3( pos.x, terrain.SampleHeight(pos), pos.z);
 			
 			GameObject soldier_obj = GameObject.Instantiate(soldierObject, pos, Quaternion.identity) as GameObject;
 			Soldier s = soldier_obj.GetComponent<Soldier>();
-			
+			s.unit = this;
+
 			Movement m = soldier_obj.GetComponent<Movement>();
-			m.moveSpeed = mov.moveSpeed;
+			//m.moveSpeed = mov.moveSpeed;
+			m.terrain = this.terrain;
+
 			
 			soldiersInUnit[i] = soldier_obj;
 		}
@@ -75,6 +81,8 @@ public class Unit : MonoBehaviour
 
 	void Awake () 
 	{
+		currentSoldierNumber = spawnSoldierNumber;
+
 		// initiliase arrays of local values (neighbours + own location)
 		// arranged as follows: [TL,TM,TR,ML,MM,MR,LL,LM,LR]
 
@@ -83,6 +91,7 @@ public class Unit : MonoBehaviour
 		local_influences_values 		= 	new float[local_values_num];
 		local_tension_values 			=	new float[local_values_num];
 		local_vulnerability_values 		= 	new float[local_values_num];
+		local_formation_vuln_values  	= 	new float[local_values_num];
 		terrain_values 					= 	new float[local_values_num];
 		
 		root = InitUnitAI();
@@ -90,6 +99,7 @@ public class Unit : MonoBehaviour
 
 	void Update () 
 	{
+
 		GetLocalInfluences();
 		root.Execute();
 		LineFormation();
@@ -156,8 +166,7 @@ public class Unit : MonoBehaviour
 		
 		Leaf set_direction = new Leaf(new System.Func<bool>( () => {
 			mov.moving = true;
-			mov.target = target;
-			//Debug.Log (mov.direction);
+			mov.SetTarget(target);
 			return true;
 		}));
 		
@@ -194,25 +203,6 @@ public class Unit : MonoBehaviour
 
 
 		return root;
-	}
-
-	
-	/// <summary>
-	/// Displays the values of the local map chosen.
-	/// </summary>
-	/// <param name="values">The value array to be rendered.</param>
-	void RenderValues (float[] values)
-	{
-		for(int i = 0; i < local_values_num; i++)
-		{
-			Color c;
-			if (values[i] < 0)
-				c = new Color(-values[i], 0, 0);
-			else
-				c = new Color(0, values[i], 0);
-
-			this.transform.FindChild("ValueQuad_" + i).GetComponent<MeshRenderer>().material.color = c;
-		}
 	}
 	
 	/// <summary>
@@ -306,8 +296,9 @@ public class Unit : MonoBehaviour
 
 		foreach (Collider hit in hitColliders)
 		{
-			if(hit.gameObject.tag.Equals("Team_A"))
-				friends.Add (hit.gameObject.GetComponent<Unit>());
+			if(hit.gameObject.tag.Equals("Team_" + team.ToString()))
+				if(!hit.gameObject.GetComponent<Unit>().Equals(this))
+					friends.Add (hit.gameObject.GetComponent<Unit>());
 		}
 
 		return friends.ToArray();
@@ -316,7 +307,6 @@ public class Unit : MonoBehaviour
 	int CountUnitsOfTeam(TEAM team)
 	{
 		GameObject[] units = GameObject.FindGameObjectsWithTag("Team_" + team.ToString());
-		
 		return units.Length;
 	}
 	
@@ -341,10 +331,40 @@ public class Unit : MonoBehaviour
 		foreach(GameObject s_obj in soldiersInUnit)
 		{
 			Movement m = s_obj.GetComponent<Movement>();
-			m.target = new Vector3( -boundingShape.GetPaddedCornerX() + this.transform.position.x + (i * 1.2f) % boundingShape.shape_corner.x, 0 , boundingShape.GetPaddedCornerY() + this.transform.position.z - 1.2f * (int)((i* 1.2f)/boundingShape.shape_corner.x) );
+			m.SetTarget(SetSoldierLineFormation(i));
 			m.moving = true;
 			i++;
 		}	
 	}
 
+	Vector3 SetSoldierLineFormation(int index)
+	{
+
+
+		float angle = Vector3.Angle(new Vector3(0,0,1), this.transform.forward);
+
+		Vector3 cross_product = Vector3.Cross(new Vector3(0,0,1), this.transform.forward);
+		if (cross_product.y < 0) 
+			angle = -angle;
+		
+		Vector3 angle_vec = new Vector3(0,angle,0);
+
+
+		const float scale = 1.2f;
+
+		float x_offset = boundingShape.GetPaddedCornerX() - scale * ( index % (int)(1 +  boundingShape.GetPaddedCornerX()*2/scale)) + this.transform.position.x;
+		float z_offset = boundingShape.GetPaddedCornerY() - scale * (int)(scale*index / (boundingShape.GetPaddedCornerX()*2)) + this.transform.position.z;
+		
+
+		Vector3 unrotated = new Vector3(x_offset, this.transform.position.y, z_offset);
+
+		return RotatePointAroundPivot(unrotated, this.transform.position, angle_vec);
+	}
+
+	Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angle)
+	{
+		Vector3 dir = point - pivot;
+		dir = Quaternion.Euler(angle) * dir;
+		return dir + pivot;
+	}
 }
