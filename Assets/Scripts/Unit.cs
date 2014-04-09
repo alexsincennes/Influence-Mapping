@@ -8,6 +8,7 @@ using System.Linq;
 public class Unit : MonoBehaviour 
 {
 	public Terrain terrain;
+	public PotentialFieldMapper potentialField;
 	
 	public Movement mov;
 	public BoundingShape boundingShape;
@@ -158,6 +159,11 @@ public class Unit : MonoBehaviour
 			return true;
 		}));
 		
+		Leaf pathfind_around_obstacles = new Leaf(new System.Func<bool>( () => {
+			PotentialFieldPathfind();	
+			return true;
+		}));
+		
 		
 		Leaf adjust_speed_cohesion = new Leaf(new System.Func<bool>( () => {
 			// change speed as a function of how much we are distancing ourselves from allies
@@ -201,6 +207,7 @@ public class Unit : MonoBehaviour
 			target_setting_tree,
 			adjust_speed_cohesion,
 			eliminate_collision_vectors,
+			pathfind_around_obstacles,
 			set_direction
 		});
 		
@@ -363,5 +370,49 @@ public class Unit : MonoBehaviour
 		Vector3 dir = point - pivot;
 		dir = Quaternion.Euler(angle) * dir;
 		return dir + pivot;
+	}
+	
+	void PotentialFieldPathfind()
+	{
+		/*
+		//do nothing if target is our position
+		if(Mathf.Approximately(target.x, this.transform.position.x) && Mathf.Approximately(target.z, this.transform.position.z))
+			return;
+		
+		if(terrain.SampleHeight(target) < 1)
+		{
+			Debug.Log ("Target is in river...");
+			target = 2.0f * (target - this.transform.position) + this.transform.position;
+			PotentialFieldPathfind();
+		}
+		else
+		{
+		*/
+			
+			float[] choices = new float[] 
+			{
+				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[0].x, (int)surroundings[0].z],
+				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[1].x, (int)surroundings[1].z],
+				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[2].x, (int)surroundings[2].z],
+				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[3].x, (int)surroundings[3].z],
+				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[4].x, (int)surroundings[4].z],
+				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[5].x, (int)surroundings[5].z],
+				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[6].x, (int)surroundings[6].z],
+				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[7].x, (int)surroundings[7].z],
+				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[8].x, (int)surroundings[8].z],
+			};
+			
+			// get rid of negative/0 values of impossibility
+			for(int i=0; i< choices.Length; i++)
+			{
+				if(choices[i] <= 0)
+					choices[i] = float.MaxValue;
+			}
+			
+			
+			target = surroundings[choices.ToList().IndexOf(choices.Min())];
+		/*
+		}
+		*/
 	}
 }

@@ -1,5 +1,5 @@
 using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 public class PotentialFieldMapper : MapRenderer
 {
@@ -30,50 +30,52 @@ public class PotentialFieldMapper : MapRenderer
 		float[,] map = new float[size,size];
 		bool[,] marked_map = new bool[size,size]; // initializes to false
 
-		MarkTile(x,y,0, map, marked_map);
+		int currentValue = 0;
+
+		Queue<Vector3> q = new Queue<Vector3>();
+		
+		if(terrain.SampleHeight(new Vector3(x, 0, y)) < 1)
+		{
+			map[x,y] = - 100;
+			return map;
+		}
+		
+		marked_map[x,y] = true;
+		map[x,y] = currentValue;
+		q.Enqueue(new Vector3(x,y, currentValue));
+		
+		while(q.Count != 0)
+		{
+			Vector3 curPos = q.Dequeue();
+			
+			EnqueueAndMarkIfUnmarked(1,1,q,curPos,marked_map, map);
+			EnqueueAndMarkIfUnmarked(1,-1,q,curPos,marked_map, map);
+			EnqueueAndMarkIfUnmarked(-1,-1,q,curPos,marked_map, map);
+			EnqueueAndMarkIfUnmarked(-1,1,q,curPos,marked_map, map);
+			EnqueueAndMarkIfUnmarked(1,0,q,curPos,marked_map, map);
+			EnqueueAndMarkIfUnmarked(-1,0,q,curPos,marked_map, map);
+			EnqueueAndMarkIfUnmarked(0,1,q,curPos,marked_map, map);
+			EnqueueAndMarkIfUnmarked(0,-1,q,curPos,marked_map, map);
+			
+		}
+		
 
 		return map;
 	}
-
-	private void MarkTile(int x, int y, int current_value, float[,] map, bool[,] marked_map)
+	
+	private void EnqueueAndMarkIfUnmarked(int x_mod, int y_mod, Queue<Vector3> q, Vector3 curPos, bool[,] marked_map, float[,] map)
 	{
-
-
-
-		if(x >= 0 && x < size && y < size && y >= 0 && !marked_map[x,y])
+		if((int)curPos.x+x_mod >= size || (int)curPos.x+x_mod < 0)
+			return;
+		if((int)curPos.y+y_mod >= size || (int)curPos.y+y_mod < 0)
+			return;
+		
+		if(!marked_map[(int)curPos.x+x_mod,(int)curPos.y+y_mod]  && terrain.SampleHeight(new Vector3(curPos.x+x_mod, 0, curPos.y+y_mod)) > 1)
 		{
-			marked_map[x,y] = true;
-
-			// if not water/river, continue
-			// else stop (can't pass through it!
-			if(terrain.SampleHeight(new Vector3(x,0,y)) > 1)
-		   	{
-				map[x,y] = current_value;
-
-				if(!marked_map[x+1,y])
-				{
-					MarkTile(x+1,y, current_value+1, map, marked_map);
-				}
-
-				if(!marked_map[x-1,y])
-				{
-					MarkTile(x-1,y, current_value+1, map, marked_map);
-				}
-
-				if(!marked_map[x,y+1])
-				{
-					MarkTile(x,y+1, current_value+1, map, marked_map);
-				}
-
-				if(!marked_map[x,y-1])
-				{
-					MarkTile(x,y-1, current_value+1, map, marked_map);
-				}
-			}
-			else
-			{
-				map[x,y] = -100;
-			}
+			marked_map[(int)curPos.x+x_mod, (int)curPos.y+y_mod] = true;
+			map[(int)curPos.x+x_mod, (int)curPos.y+y_mod] = curPos.z+1;
+			
+			q.Enqueue(new Vector3((int)curPos.x+x_mod,(int)curPos.y+y_mod, curPos.z+1));
 		}
 	}
 }
