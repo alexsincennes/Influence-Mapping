@@ -142,7 +142,7 @@ public class Unit : MonoBehaviour
 			RaycastHit hitInfo;
 			if(Physics.Raycast(target, this.transform.position - target, out hitInfo, Vector3.Distance(target, this.transform.position)))
 		   	{
-				Debug.Log (hitInfo.collider.gameObject.name);
+				//Debug.Log (hitInfo.collider.gameObject.name);
 				if(hitInfo.collider.gameObject.tag.Equals("Impassable"))
 				{
 					target = this.transform.position;

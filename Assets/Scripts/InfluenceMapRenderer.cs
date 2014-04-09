@@ -5,36 +5,16 @@ using AssemblyCSharp;
 [ExecuteInEditMode]
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
-public class InfluenceMapRenderer : MonoBehaviour
+public class InfluenceMapRenderer : MapRenderer
 {
 	public GameObject unit_obj;
 	private Unit unit;
-
-	public Terrain terrain;
-
 	public float unit_height = 0.5f;
 
-	private const int size = 100;
-	private float[,] values;
-	
-	// Use this for initialization
-	void Start ()
+	protected override void GetValues()
 	{
 		unit = unit_obj.GetComponent<Unit>();
-		values = new float[size,size];
 
-		GetValues();
-		CreateMapTexture();
-	}
-
-	// Update is called once per frame
-	void Update ()
-	{
-
-	}
-
-	void GetValues()
-	{
 		for(int x = 0; x < size; x++)
 		{
 			for(int z = 0; z < size; z++)
@@ -50,38 +30,10 @@ public class InfluenceMapRenderer : MonoBehaviour
 				float influence_minus_self 		= InfluenceMapper.TotalInfluenceMinusSelf(unit, pos, influences_value);
 				float terrain_value 			= InfluenceMapper.TerrainValue(terrain, pos);
 
-				values[x,z] = influence_minus_self / 5;
+				values[x,z] = form_vuln_value / 5;
 				
 			}
 		}		
-	}
-
-	void CreateMapTexture() 
-	{	
-		Texture2D texture = new Texture2D(size, size);
-		
-		for(int h=0; h < size; h++) 
-		{
-			for(int w=0; w < size; w++) 
-			{
-				
-				Color c;
-				if (values[w,h] < 0)
-					c = new Color(-values[w,h], 0, 0);
-				else
-					c = new Color(0, values[w,h], 0);
-
-				texture.SetPixel(w,h,c);
-			}
-		}
-		
-		texture.filterMode = FilterMode.Point;
-		texture.wrapMode = TextureWrapMode.Clamp;
-		texture.Apply();
-		
-		MeshRenderer mesh_renderer = GetComponent<MeshRenderer>();
-		mesh_renderer.sharedMaterials[0].mainTexture = texture;
-
 	}
 }
 

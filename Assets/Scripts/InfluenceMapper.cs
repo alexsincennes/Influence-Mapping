@@ -91,8 +91,6 @@ namespace AssemblyCSharp
 			
 		}
 
-
-
 		public static float TerrainValue(Terrain terrain, Vector3 pos)
 		{
 			// use information from a manager/god-class

@@ -1,19 +1,22 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\PotentialFieldMapper.cs">
     <Files>
-      <File FileName="Assets\Scripts\Unit.cs" Line="3" Column="22" />
-      <File FileName="Assets\Scripts\Unit.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Unit.cs" Line="142" Column="23" />
       <File FileName="Assets\Scripts\BoundingShape.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Movement.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Soldier.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\InfluenceMapper.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\InfluenceMapRenderer.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\PotentialFieldMapper.cs" Line="19" Column="2" />
+      <File FileName="Assets\Scripts\InfluenceMapper.cs" Line="92" Column="4" />
+      <File FileName="Assets\Scripts\InfluenceMapRenderer.cs" Line="21" Column="5" />
+      <File FileName="Assets\Scripts\PotentialFieldMapper.cs" Line="66" Column="6" />
+      <File FileName="Assets\Scripts\MapRenderer.cs" Line="40" Column="20" />
+      <File FileName="Assets\Scripts\RangedWeapon.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="C:\Users\Alex\Documents\GitHub\COMP-521-Project\Assets\Scripts\PotentialFieldMapper.cs" line="25" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>
