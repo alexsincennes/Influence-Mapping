@@ -22,7 +22,8 @@ namespace AssemblyCSharp
 
 			return TeamInfluence(pos, other_team);
 		}
-		
+
+		// for code duplication reduction -> used by friend/foe influence
 		public static float TeamInfluence(Vector3 pos, Unit.TEAM team)
 		{
 			float total = 0;
@@ -44,41 +45,54 @@ namespace AssemblyCSharp
 		}
 		
 		// friendly influence - foe influence
+		// friend and foe influences combined
 		public static float TotalInfluence(float friend_influence, float foe_influence)
 		{
 			return friend_influence - foe_influence;
 		}
 		
 		// friendly influence + foe influence
+		// where everyone (regardless of team) is
 		public static float TotalTension(float friend_influence, float foe_influence)
 		{
 			return (friend_influence + foe_influence);
 		}
 		
 		// tension map - |influence map|
+		// where the frontline will be / is
 		public static float TotalVulnerability(float tension, float influence)
 		{
 			return tension - Mathf.Abs (influence);
 		}
-		
+
+		// vulnerability map - scale of tension map (excluding self)
+		// go towards front line while avoiding getting too close to friends
+		public static float TotalFormationVulnerability(Unit u, Vector3 pos, float vulnerability, float tension)
+		{
+			float tension_scale = 0.03f;
+			return vulnerability - tension_scale * (tension - InfluenceValue(pos, u));
+		}
+
+		public static float TotalInfluenceMinusSelf(Unit u, Vector3 pos, float influence)
+		{
+			return influence - InfluenceValue(pos, u);
+		}
 		
 		public static float InfluenceValue(Vector3 pos, Unit other)
 		{
-			// take into account the various fields of other
+			// take into account the various fields of the unit 'other'
 			// to adjust the influence value
 			float r = Vector3.Distance(pos, other.transform.position);
 
-			// scale by 1000 to prevent float values being too close to each other
 
 			float ans = other.currentSoldierNumber/Mathf.Pow(1.1f,r);
-			
-			//if (!other.team.Equals(this.team))
-			//	ans = -ans;
 			
 			return ans;
 			
 		}
-		
+
+
+
 		public static float TerrainValue(Terrain terrain, Vector3 pos)
 		{
 			// use information from a manager/god-class

@@ -12,6 +12,8 @@ public class Soldier : MonoBehaviour
 	private Vector3 target;
 	
 	private bool inside_unit_bounds = true;
+
+	public int number_in_unit;
 	
 
 	// Use this for initialization
@@ -47,7 +49,15 @@ public class Soldier : MonoBehaviour
 	void FollowBounding ()
 	{
 		
-	}	
+	}
+
+	void Die ()
+	{
+		// do local dying-stuff
+
+		//signal unit
+		//unit.SignalDeath(number_in_unit);
+	}
 	
 	void OnTriggerEnter (Collider col)
 	{

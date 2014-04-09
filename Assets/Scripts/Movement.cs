@@ -9,11 +9,19 @@ public class Movement : MonoBehaviour
 	public bool followTerrainHeight = true;
 
 	public bool moving = false;
-	private Vector3 target = new Vector3(0,0,0);
-	
+	private Vector3 target;
+
 	public float turnSpeed = 30.0f;
-	
-	public float moveSpeed = 10.0f;
+
+	public float maxSpeed = 10.0f;
+
+	private float moveSpeed;
+
+	void Start ()
+	{
+		moveSpeed = maxSpeed;
+		target = this.transform.position;
+	}
 
 	// Update is called once per frame
 	void Update ()
@@ -49,8 +57,6 @@ public class Movement : MonoBehaviour
 
 				transform.position = Vector3.MoveTowards(transform.position, target, move_step);
 					
-
-			
 			}
 			else
 			{
@@ -67,6 +73,14 @@ public class Movement : MonoBehaviour
 			y = terrain.SampleHeight(t);
 
 		target = new Vector3( t.x, y, t.z);
+	}
+
+	public void ChangeSpeed(float scale)
+	{
+		if(scale > 1.0f)
+			scale = 1.0f;
+
+		moveSpeed = scale * maxSpeed;
 	}
 }
 

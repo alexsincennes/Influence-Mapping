@@ -12,7 +12,7 @@ public class BoundingShape : MonoBehaviour
 
 	// bounding data
 	public enum BOUNDING_SHAPE {RECTANGULAR, CIRCULAR};
-	public BOUNDING_SHAPE shape;
+	public BOUNDING_SHAPE shape = BOUNDING_SHAPE.RECTANGULAR;
 	// vector to corner of rectangle, or point on circle
 	public Vector2 shape_corner = new Vector2(5, 2);
 	
@@ -22,18 +22,15 @@ public class BoundingShape : MonoBehaviour
 
 	void Start ()
 	{
-		ModifyShape(shape, shape_corner.x, shape_corner.y);
 	}
 	
-	void ModifyShape (BOUNDING_SHAPE aShape, float x, float y)
+	public void ModifyShape (BOUNDING_SHAPE aShape, float x, float y)
 	{
-		// scale in the x and y because the quad we draw on is
-		// rotated 90 degrees in the x axis
-		
-		this.transform.localScale = new Vector3( shape_corner.x*2, y_size, shape_corner.y*2 );
 		shape = aShape;
-		shape_corner.x = x;
-		shape_corner.y = y;
+		shape_corner.x = x + this.padding;
+		shape_corner.y = y + this.padding;
+		// scale in the x and y because the quad we draw on is
+		this.transform.localScale = new Vector3( shape_corner.x*2, y_size, shape_corner.y*2 );
 	}
 	
 	public float GetPaddedCornerX()
