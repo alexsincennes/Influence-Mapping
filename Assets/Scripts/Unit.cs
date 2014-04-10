@@ -19,8 +19,10 @@ public class Unit : MonoBehaviour
 	// the soldier object to spawn
 	public GameObject soldierObject;
 	
-	public GameObject[] soldiersInUnit;
-	
+	private List<GameObject> soldiersInUnit;
+	public GameObject[] GetSoldiers () {return soldiersInUnit.toArray();}
+
+
 	// the AI-determined target vector, which we use to set the direction vector
 	public Vector3 target = new Vector3(0,0,0);
 
@@ -390,6 +392,8 @@ public class Unit : MonoBehaviour
 	/// <param name="index">Index of soldier that died in the soldier list.</param>
 	public void SignalDeath(int index)
 	{
+		Debug.Log("death signalled");
+
 		currentSoldierNumber--;
 
 		if(currentSoldierNumber == 0)

@@ -55,7 +55,7 @@ public class RangedWeapon : MonoBehaviour
 	{
 		if(ready_to_fire)
 		{
-			Debug.Log ("Firing!");
+			//Debug.Log ("Firing!");
 			RaycastHit hitInfo;
 			
 			//fire ray based on accurate values, etc
@@ -70,6 +70,8 @@ public class RangedWeapon : MonoBehaviour
 			{
 				if(hitInfo.collider.gameObject.Equals(target))
 				{
+					Debug.Log ("hit target");
+
 					target.GetComponent<Soldier>().Die();
 				}
 			}
