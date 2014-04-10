@@ -11,6 +11,8 @@ public class RangedWeapon : MonoBehaviour
 	public int capacity = 1;
 	public float time_between_shots;
 	private int current_ammo;
+	
+	public bool smoke = true;
 
 	public bool ready_to_fire = true;
 
@@ -68,7 +70,7 @@ public class RangedWeapon : MonoBehaviour
 			
 			if(Physics.Raycast(origin, target.transform.position, out hitInfo))
 			{
-				if(hitInfo.collider.gameObject.Equals(target))
+				if(hitInfo.collider.gameObject.tag.Equals("Soldier"))
 				{
 					Debug.Log ("hit target");
 

@@ -20,7 +20,7 @@ public class Unit : MonoBehaviour
 	public GameObject soldierObject;
 	
 	private List<GameObject> soldiersInUnit;
-	public GameObject[] GetSoldiers () {return soldiersInUnit.toArray();}
+	public GameObject[] GetSoldiers () {return soldiersInUnit.ToArray();}
 
 
 	// the AI-determined target vector, which we use to set the direction vector
@@ -67,7 +67,7 @@ public class Unit : MonoBehaviour
 
 		currentSoldierNumber = spawnSoldierNumber;
 		// spawn soldiers of unit
-		soldiersInUnit = new GameObject[spawnSoldierNumber];
+		soldiersInUnit = new List<GameObject>();
 		
 		boundingShape.ModifyShape(BoundingShape.BOUNDING_SHAPE.RECTANGULAR, (spawnSoldierNumber/columnNumber -1)/2.0f * soldier_size_scale, (columnNumber - 1) /2.0f * soldier_size_scale);
 		
@@ -80,7 +80,6 @@ public class Unit : MonoBehaviour
 			
 			GameObject soldier_obj = GameObject.Instantiate(soldierObject, pos, Quaternion.identity) as GameObject;
 			Soldier s = soldier_obj.GetComponent<Soldier>();
-			s.number_in_unit = i;
 			s.unit = this;
 			
 			Movement m = soldier_obj.GetComponent<Movement>();
@@ -88,7 +87,7 @@ public class Unit : MonoBehaviour
 			m.terrain = this.terrain;
 			
 			
-			soldiersInUnit[i] = soldier_obj;
+			soldiersInUnit.Add(soldier_obj);
 		}
 		
 	}
@@ -283,7 +282,7 @@ public class Unit : MonoBehaviour
 	/// </summary>
 	void GetLocalInfluences()
 	{
-		float distance = 3.0f;
+		float distance = 1.0f;
 		float distance_x = distance + boundingShape.shape_corner.x;
 		float distance_y = distance + boundingShape.shape_corner.y;
 
@@ -376,11 +375,13 @@ public class Unit : MonoBehaviour
 	
 	void LineFormation()
 	{
-		foreach(GameObject s_obj in soldiersInUnit)
+		boundingShape.ModifyShape(BoundingShape.BOUNDING_SHAPE.RECTANGULAR, (currentSoldierNumber/columnNumber -1)/2.0f * soldier_size_scale, (columnNumber - 1) /2.0f * soldier_size_scale);
+	
+		for(int i=0; i< soldiersInUnit.ToArray().Length; i++)
 		{
 			
-			Movement m = s_obj.GetComponent<Movement>();
-			m.SetTarget(SetSoldierLineFormation(s_obj.GetComponent<Soldier>().number_in_unit));
+			Movement m = soldiersInUnit.ToArray()[i].GetComponent<Movement>();
+			m.SetTarget(SetSoldierLineFormation(i));
 			m.moving = true;
 		}
 	}
@@ -390,7 +391,7 @@ public class Unit : MonoBehaviour
 	/// After a certain number of deaths, he changes the formation, the indices of the other soldiers, etc.
 	/// </summary>
 	/// <param name="index">Index of soldier that died in the soldier list.</param>
-	public void SignalDeath(int index)
+	public void SignalDeath(GameObject s_obj)
 	{
 		Debug.Log("death signalled");
 
@@ -399,22 +400,7 @@ public class Unit : MonoBehaviour
 		if(currentSoldierNumber == 0)
 			GameObject.Destroy(this.gameObject);
 
-		soldiersInUnit[index] = null;
-
-		GameObject[] temp_soldiers = new GameObject[spawnSoldierNumber];
-
-		soldiersInUnit.CopyTo(temp_soldiers, soldiersInUnit.Length);
-
-		soldiersInUnit = new GameObject[currentSoldierNumber];
-		int i=0;
-		foreach(GameObject s in temp_soldiers)
-		{
-			if(!s.Equals(null))
-			{
-				soldiersInUnit[i] = s;
-				i++;
-			}
-		}
+		soldiersInUnit.Remove(s_obj);
 	}
 	
 	Vector3 SetSoldierLineFormation(int index)
@@ -460,20 +446,19 @@ public class Unit : MonoBehaviour
 		}
 		else
 		{
-
-			
 			float[] choices = new float[] 
-			{
-				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[0].x, (int)surroundings[0].z],
-				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[1].x, (int)surroundings[1].z],
-				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[2].x, (int)surroundings[2].z],
-				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[3].x, (int)surroundings[3].z],
-				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[4].x, (int)surroundings[4].z],
-				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[5].x, (int)surroundings[5].z],
-				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[6].x, (int)surroundings[6].z],
-				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[7].x, (int)surroundings[7].z],
-				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[8].x, (int)surroundings[8].z]
-			};
+				{
+					potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[0].x, (int)surroundings[0].z],
+					potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[1].x, (int)surroundings[1].z],
+					potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[2].x, (int)surroundings[2].z],
+					potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[3].x, (int)surroundings[3].z],
+					potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[4].x, (int)surroundings[4].z],
+					potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[5].x, (int)surroundings[5].z],
+					potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[6].x, (int)surroundings[6].z],
+					potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[7].x, (int)surroundings[7].z],
+					potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[8].x, (int)surroundings[8].z]
+				};
+			
 			
 			// get rid of negative/0 values of impossibility
 			for(int i=0; i< choices.Length; i++)

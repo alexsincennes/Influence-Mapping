@@ -69,6 +69,7 @@
      <Compile Include="Assets\Scripts\Movement.cs" />
      <Compile Include="Assets\Scripts\PotentialFieldMapper.cs" />
      <Compile Include="Assets\Scripts\RangedWeapon.cs" />
+     <Compile Include="Assets\Scripts\SceneSelect.cs" />
      <Compile Include="Assets\Scripts\Soldier.cs" />
      <Compile Include="Assets\Scripts\TerrainManager.cs" />
      <Compile Include="Assets\Scripts\Unit.cs" />

@@ -69,7 +69,7 @@ namespace AssemblyCSharp
 		// go towards front line while avoiding getting too close to friends
 		public static float TotalFormationVulnerability(Unit u, Vector3 pos, float vulnerability, float tension)
 		{
-			float tension_scale = 0.07f;
+			float tension_scale = 0.03f;
 			return vulnerability - tension_scale * (tension - InfluenceValue(pos, u));
 		}
 
@@ -80,8 +80,6 @@ namespace AssemblyCSharp
 		
 		public static float InfluenceValue(Vector3 pos, Unit other)
 		{
-			// take into account the various fields of the unit 'other'
-			// to adjust the influence value
 			float r = Vector3.Distance(pos, other.transform.position);
 
 

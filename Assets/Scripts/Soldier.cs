@@ -16,8 +16,6 @@ public class Soldier : MonoBehaviour
 
 	public bool attacking_mode = false;
 
-	public int number_in_unit;
-
 	public RangedWeapon rangedWeapon;
 	
 
@@ -44,16 +42,20 @@ public class Soldier : MonoBehaviour
 	
 	void RangedAttack ()
 	{
-		int max_length = ((Unit)unit.enemies_in_range[0]).soldiersInUnit.Length-1;
+		int max_length = ((Unit)unit.enemies_in_range[0]).GetSoldiers().Length-1;
 		int index = Random.Range(0, max_length);
 
-		rangedWeapon.Fire( ((Unit)unit.enemies_in_range[0]).soldiersInUnit[index], this.transform.position);
+		if( ((Unit)unit.enemies_in_range[0]).GetSoldiers().Length > 0)
+		{
+				
+			rangedWeapon.Fire( ((Unit)unit.enemies_in_range[0]).GetSoldiers()[index], this.transform.position);
+		}
 	}
 
 	public void Die ()
 	{
 		Debug.Log("DIED!");
-		unit.SignalDeath(number_in_unit);
+		unit.SignalDeath(this.gameObject);
 
 		GameObject.Destroy(this.gameObject);
 	}
