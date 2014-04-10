@@ -69,7 +69,7 @@ namespace AssemblyCSharp
 		// go towards front line while avoiding getting too close to friends
 		public static float TotalFormationVulnerability(Unit u, Vector3 pos, float vulnerability, float tension)
 		{
-			float tension_scale = 0.03f;
+			float tension_scale = 0.07f;
 			return vulnerability - tension_scale * (tension - InfluenceValue(pos, u));
 		}
 

@@ -30,7 +30,7 @@ public class InfluenceMapRenderer : MapRenderer
 				float influence_minus_self 		= InfluenceMapper.TotalInfluenceMinusSelf(unit, pos, influences_value);
 				float terrain_value 			= InfluenceMapper.TerrainValue(terrain, pos);
 
-				values[x,z] = form_vuln_value / 5;
+				values[x,z] = influence_minus_self / 5;
 				
 			}
 		}		

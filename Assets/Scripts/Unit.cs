@@ -1,10 +1,12 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 using AssemblyCSharp;
 using System.Linq;
 
 [RequireComponent (typeof (Movement))]
 [RequireComponent (typeof (BoundingShape))]
+[RequireComponent (typeof (RangedWeapon))]
 public class Unit : MonoBehaviour 
 {
 	public Terrain terrain;
@@ -12,6 +14,7 @@ public class Unit : MonoBehaviour
 	
 	public Movement mov;
 	public BoundingShape boundingShape;
+	public RangedWeapon rangedWeapon;
 	
 	// the soldier object to spawn
 	public GameObject soldierObject;
@@ -19,14 +22,14 @@ public class Unit : MonoBehaviour
 	public GameObject[] soldiersInUnit;
 	
 	// the AI-determined target vector, which we use to set the direction vector
-	private Vector3 target = new Vector3(0,0,0);
+	public Vector3 target = new Vector3(0,0,0);
+
+	public ArrayList enemies_in_range;
 	
 	
 	// unit data
 	public enum TEAM {A,B};
 	public TEAM team;
-	public enum TROOP_TYPE {INFANTRY, ARTILLERY, CAVALRY};
-	public TROOP_TYPE type = TROOP_TYPE.INFANTRY;
 	
 	public int spawnSoldierNumber = 1;
 	public int columnNumber = 2;
@@ -58,6 +61,8 @@ public class Unit : MonoBehaviour
 	
 	void Start ()
 	{
+		rangedWeapon = soldierObject.GetComponent<RangedWeapon>();
+
 		currentSoldierNumber = spawnSoldierNumber;
 		// spawn soldiers of unit
 		soldiersInUnit = new GameObject[spawnSoldierNumber];
@@ -99,7 +104,9 @@ public class Unit : MonoBehaviour
 		local_formation_vuln_values  	= 	new float[local_values_num];
 		local_influence_minus_self 		=   new float[local_values_num];
 		terrain_values 					= 	new float[local_values_num];
-		
+
+		enemies_in_range = new ArrayList();
+
 		root = InitUnitAI();
 	}
 	
@@ -127,7 +134,42 @@ public class Unit : MonoBehaviour
 			return enemies_close > friendlies_close;
 		}));
 		
-		
+		Leaf query_in_range = new Leaf(new System.Func<bool>( () => {
+			enemies_in_range.Clear();
+
+			Collider[] hitColliders = Physics.OverlapSphere(this.transform.position, rangedWeapon.range);
+
+			foreach(Collider col in hitColliders)
+			{
+				if (col.gameObject.tag.Equals("Team_" + GetOpposingTeam().ToString()))
+				{
+					enemies_in_range.Add(col.gameObject.GetComponent<Unit>());
+				}
+			}
+			//Debug.Log (enemies_in_range.Count + " enemies found to be in range!");
+			return enemies_in_range.Count >= 1;
+		}));
+
+		Leaf signal_attack = new Leaf(new System.Func<bool>( () => {
+			foreach(GameObject s_obj in soldiersInUnit)
+			{
+				Soldier s = s_obj.GetComponent<Soldier>();
+				s.attacking_mode = true;
+			}
+
+			return true;
+		}));
+
+		Leaf signal_ceasefire = new Leaf(new System.Func<bool>( () => {
+			foreach(GameObject s_obj in soldiersInUnit)
+			{
+				Soldier s = s_obj.GetComponent<Soldier>();
+				s.attacking_mode = false;
+			}
+			
+			return true;
+		}));
+
 		Leaf target_highest_influence = new Leaf(new System.Func<bool>( () => {
 			target = surroundings[local_influence_minus_self.ToList().IndexOf(local_influence_minus_self.Max())];
 			return true;
@@ -164,18 +206,19 @@ public class Unit : MonoBehaviour
 			return true;
 		}));
 		
-		
+
+		/*
 		Leaf adjust_speed_cohesion = new Leaf(new System.Func<bool>( () => {
 			// change speed as a function of how much we are distancing ourselves from allies
-			//int index = surroundings.ToList().FindIndex(new System.Predicate<Vector3>( (Vector3 v) => {return v.Equals(target);}));
-			//int opposite_index = (surroundings.Length-1) - index;
+			int index = surroundings.ToList().FindIndex(new System.Predicate<Vector3>( (Vector3 v) => {return v.Equals(target);}));
+			int opposite_index = (surroundings.Length-1) - index;
 			
 			
 			//float scale = local_influences_values[opposite_index] - local_influences_values[index];
-			//mov.ChangeSpeed(1 - 2 * scale);
+			mov.ChangeSpeed(1 - 2 * scale);
 			return true;
 		}));
-		
+		*/
 		
 		Leaf set_direction = new Leaf(new System.Func<bool>( () => {
 			mov.moving = true;
@@ -202,13 +245,24 @@ public class Unit : MonoBehaviour
 			not_outnumbered_tree
 		});
 		
-		
-		SequenceNode enemies_tree = new SequenceNode(new List<Node> { 
+
+		SequenceNode enemies_attack_tree = new SequenceNode(new List<Node> {
+			query_in_range,
+			signal_attack
+		});
+
+		SequenceNode enemies_movement_tree = new SequenceNode(new List<Node> { 
+			signal_ceasefire,
 			target_setting_tree,
-			adjust_speed_cohesion,
+			//adjust_speed_cohesion,
 			eliminate_collision_vectors,
 			pathfind_around_obstacles,
 			set_direction
+		});
+
+		SelectorNode enemies_tree = new SelectorNode(new List<Node> {
+			enemies_attack_tree,
+			enemies_movement_tree
 		});
 		
 		SelectorNode root = new SelectorNode(new List<Node> {
@@ -227,7 +281,7 @@ public class Unit : MonoBehaviour
 	/// </summary>
 	void GetLocalInfluences()
 	{
-		float distance = 1.0f;
+		float distance = 3.0f;
 		float distance_x = distance + boundingShape.shape_corner.x;
 		float distance_y = distance + boundingShape.shape_corner.y;
 
@@ -334,9 +388,29 @@ public class Unit : MonoBehaviour
 	/// After a certain number of deaths, he changes the formation, the indices of the other soldiers, etc.
 	/// </summary>
 	/// <param name="index">Index of soldier that died in the soldier list.</param>
-	void SignalDeath(int index)
+	public void SignalDeath(int index)
 	{
-		
+		currentSoldierNumber--;
+
+		if(currentSoldierNumber == 0)
+			GameObject.Destroy(this.gameObject);
+
+		soldiersInUnit[index] = null;
+
+		GameObject[] temp_soldiers = new GameObject[spawnSoldierNumber];
+
+		soldiersInUnit.CopyTo(temp_soldiers, soldiersInUnit.Length);
+
+		soldiersInUnit = new GameObject[currentSoldierNumber];
+		int i=0;
+		foreach(GameObject s in temp_soldiers)
+		{
+			if(!s.Equals(null))
+			{
+				soldiersInUnit[i] = s;
+				i++;
+			}
+		}
 	}
 	
 	Vector3 SetSoldierLineFormation(int index)
@@ -373,21 +447,16 @@ public class Unit : MonoBehaviour
 	}
 	
 	void PotentialFieldPathfind()
-	{
-		/*
-		//do nothing if target is our position
-		if(Mathf.Approximately(target.x, this.transform.position.x) && Mathf.Approximately(target.z, this.transform.position.z))
-			return;
-		
+	{	
 		if(terrain.SampleHeight(target) < 1)
 		{
-			Debug.Log ("Target is in river...");
+			//Debug.Log ("Target is in river...");
 			target = 2.0f * (target - this.transform.position) + this.transform.position;
 			PotentialFieldPathfind();
 		}
 		else
 		{
-		*/
+
 			
 			float[] choices = new float[] 
 			{
@@ -399,20 +468,20 @@ public class Unit : MonoBehaviour
 				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[5].x, (int)surroundings[5].z],
 				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[6].x, (int)surroundings[6].z],
 				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[7].x, (int)surroundings[7].z],
-				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[8].x, (int)surroundings[8].z],
+				potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[8].x, (int)surroundings[8].z]
 			};
 			
 			// get rid of negative/0 values of impossibility
 			for(int i=0; i< choices.Length; i++)
 			{
-				if(choices[i] <= 0)
+				if(choices[i] < 0)
 					choices[i] = float.MaxValue;
 			}
 			
 			
 			target = surroundings[choices.ToList().IndexOf(choices.Min())];
-		/*
+		
 		}
-		*/
+
 	}
 }

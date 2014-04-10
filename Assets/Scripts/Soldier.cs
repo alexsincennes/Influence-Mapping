@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Linq;
 
 [RequireComponent(typeof(Movement))]
 [RequireComponent(typeof(Collider))]
@@ -11,9 +12,13 @@ public class Soldier : MonoBehaviour
 	
 	private Vector3 target;
 	
-	private bool inside_unit_bounds = true;
+	//private bool inside_unit_bounds = true;
+
+	public bool attacking_mode = false;
 
 	public int number_in_unit;
+
+	public RangedWeapon rangedWeapon;
 	
 
 	// Use this for initialization
@@ -25,40 +30,35 @@ public class Soldier : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-
+		if(attacking_mode)
+		{
+			RangedAttack ();
+		}
 	}
 	
 	void Melee ()
 	{
-		// do some animation
+		// optional
 		
 	}
 	
 	void RangedAttack ()
 	{
-		// do some animation
-		
-		// cast some shot ray
-	}
-	
-	void FormUp ()
-	{
-		// move to target as set by unit-level AI
-	}
-	
-	void FollowBounding ()
-	{
-		
+		int max_length = ((Unit)unit.enemies_in_range[0]).soldiersInUnit.Length-1;
+		int index = Random.Range(0, max_length);
+
+		rangedWeapon.Fire( ((Unit)unit.enemies_in_range[0]).soldiersInUnit[index], this.transform.position);
 	}
 
-	void Die ()
+	public void Die ()
 	{
-		// do local dying-stuff
+		Debug.Log("DIED!");
+		unit.SignalDeath(number_in_unit);
 
-		//signal unit
-		//unit.SignalDeath(number_in_unit);
+		GameObject.Destroy(this.gameObject);
 	}
-	
+
+	/*
 	void OnTriggerEnter (Collider col)
 	{
 		if(col.gameObject.GetComponent<Unit>() != null)
@@ -85,4 +85,5 @@ public class Soldier : MonoBehaviour
 			}
 		}
 	}
+*/
 }

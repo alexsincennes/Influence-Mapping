@@ -8,6 +8,8 @@ public class PotentialFieldMapper : MapRenderer
 	// the second for the potential field map
 	public float[,][,] potentialFieldValues;
 
+	public GameObject loadingText;
+
 
 	protected override void GetValues ()
 	{
@@ -23,6 +25,8 @@ public class PotentialFieldMapper : MapRenderer
 		}
 
 		values = potentialFieldValues[0,0];
+		//disable loading text, we're done!
+		loadingText.SetActive(false);
 	}
 
 	float[,] GeneratePotentialFieldMap (int x, int y)
@@ -57,6 +61,15 @@ public class PotentialFieldMapper : MapRenderer
 			EnqueueAndMarkIfUnmarked(0,1,q,curPos,marked_map, map);
 			EnqueueAndMarkIfUnmarked(0,-1,q,curPos,marked_map, map);
 			
+		}
+
+		for(int i = 0; i < size ; i++)
+		{
+			for(int j = 0; j < size; j++)
+			{
+				if(!marked_map[i,j])
+					map[i,j] = -100;
+			}
 		}
 		
 
