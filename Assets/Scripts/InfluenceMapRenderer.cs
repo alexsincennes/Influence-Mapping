@@ -5,6 +5,9 @@ using AssemblyCSharp;
 [ExecuteInEditMode]
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
+/// <summary>
+/// Renders the influence map onto a texture.
+/// </summary>
 public class InfluenceMapRenderer : MapRenderer
 {
 	public GameObject unit_obj;
@@ -30,7 +33,7 @@ public class InfluenceMapRenderer : MapRenderer
 				float influence_minus_self 		= InfluenceMapper.TotalInfluenceMinusSelf(unit, pos, influences_value);
 				float terrain_value 			= InfluenceMapper.TerrainValue(terrain, pos);
 
-				values[x,z] = influence_minus_self / 5;
+				values[x,z] = vulnerability_value;
 				
 			}
 		}		

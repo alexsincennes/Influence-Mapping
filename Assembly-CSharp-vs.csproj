@@ -61,7 +61,6 @@
      <Compile Include="Assets\Scripts\Behaviour Tree\Sequences\RandomSequenceNode.cs" />
      <Compile Include="Assets\Scripts\Behaviour Tree\Sequences\SequenceNode.cs" />
      <Compile Include="Assets\Scripts\BoundingShape.cs" />
-     <Compile Include="Assets\Scripts\FollowTarget.cs" />
      <Compile Include="Assets\Scripts\InfluenceMapRenderer.cs" />
      <Compile Include="Assets\Scripts\InfluenceMapper.cs" />
      <Compile Include="Assets\Scripts\MapRenderer.cs" />

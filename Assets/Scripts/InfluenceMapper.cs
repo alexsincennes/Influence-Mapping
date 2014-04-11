@@ -3,7 +3,9 @@ using System;
 using UnityEngine;
 namespace AssemblyCSharp
 {
-	// logical influence mapping
+	/// <summary>
+	/// Logical influence mapping.
+	/// </summary>
 	public static class InfluenceMapper
 	{
 		public static float FriendInfluence(Unit u, Vector3 pos)
@@ -65,12 +67,12 @@ namespace AssemblyCSharp
 			return tension - Mathf.Abs (influence);
 		}
 
-		// vulnerability map - scale of tension map (excluding self)
+		// vulnerability map + scale of tension map (excluding self)
 		// go towards front line while avoiding getting too close to friends
 		public static float TotalFormationVulnerability(Unit u, Vector3 pos, float vulnerability, float tension)
 		{
-			float tension_scale = 0.03f;
-			return vulnerability - tension_scale * (tension - InfluenceValue(pos, u));
+			float tension_scale = 0.01f;
+			return vulnerability + tension_scale * (tension - InfluenceValue(pos, u));
 		}
 
 		public static float TotalInfluenceMinusSelf(Unit u, Vector3 pos, float influence)

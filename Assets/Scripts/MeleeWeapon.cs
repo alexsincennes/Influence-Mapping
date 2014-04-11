@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Unimplemented but kept for extensibility purposes.
+/// </summary>
 public class MeleeWeapon : MonoBehaviour
 {
 	public float damage = 10.0f;

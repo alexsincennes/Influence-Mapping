@@ -72,8 +72,6 @@ public class RangedWeapon : MonoBehaviour
 			{
 				if(hitInfo.collider.gameObject.tag.Equals("Soldier"))
 				{
-					Debug.Log ("hit target");
-
 					target.GetComponent<Soldier>().Die();
 				}
 			}

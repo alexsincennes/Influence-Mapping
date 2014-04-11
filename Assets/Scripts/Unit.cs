@@ -6,7 +6,6 @@ using System.Linq;
 
 [RequireComponent (typeof (Movement))]
 [RequireComponent (typeof (BoundingShape))]
-[RequireComponent (typeof (RangedWeapon))]
 public class Unit : MonoBehaviour 
 {
 	public Terrain terrain;
@@ -119,6 +118,12 @@ public class Unit : MonoBehaviour
 		LineFormation();
 	}
 	
+	/// <summary>
+	/// Creates and initialises the behaviour tree.
+	/// It is advised to consult the BT diagram rather than consult the code
+	/// for the general structure of the tree.
+	/// </summary>
+	/// <returns>The root node.</returns>
 	Node InitUnitAI ()
 	{
 		Leaf query_enemies_remain = new Leaf(new System.Func<bool>( () => {
@@ -184,7 +189,7 @@ public class Unit : MonoBehaviour
 		
 		Leaf eliminate_collision_vectors = new Leaf(new System.Func<bool>( () => {
 			RaycastHit hitInfo;
-			if(Physics.Raycast(target, this.transform.position - target, out hitInfo, Vector3.Distance(target, this.transform.position)))
+			if(Physics.Raycast(target, target - this.transform.position, out hitInfo, Vector3.Distance(target, this.transform.position)))
 		   	{
 				//Debug.Log (hitInfo.collider.gameObject.name);
 				if(hitInfo.collider.gameObject.tag.Equals("Impassable"))
@@ -194,8 +199,12 @@ public class Unit : MonoBehaviour
 				else
 					if(hitInfo.collider.gameObject.tag.Equals("Team_A") || hitInfo.collider.gameObject.tag.Equals("Team_B"))
 					{
+						
 						if(!collider.gameObject.GetComponent<Unit>().Equals(this))
+						{
+							//Debug.Log("running into friend");
 							target = this.transform.position;
+						}
 					}
 			}
 
@@ -373,6 +382,9 @@ public class Unit : MonoBehaviour
 			return TEAM.A;
 	}
 	
+	/// <summary>
+	/// Assigns positions in the line formation to all soldier under this unit's command.
+	/// </summary>
 	void LineFormation()
 	{
 		boundingShape.ModifyShape(BoundingShape.BOUNDING_SHAPE.RECTANGULAR, (currentSoldierNumber/columnNumber -1)/2.0f * soldier_size_scale, (columnNumber - 1) /2.0f * soldier_size_scale);
@@ -393,7 +405,7 @@ public class Unit : MonoBehaviour
 	/// <param name="index">Index of soldier that died in the soldier list.</param>
 	public void SignalDeath(GameObject s_obj)
 	{
-		Debug.Log("death signalled");
+		//Debug.Log("death signalled");
 
 		currentSoldierNumber--;
 
@@ -403,6 +415,11 @@ public class Unit : MonoBehaviour
 		soldiersInUnit.Remove(s_obj);
 	}
 	
+	/// <summary>
+	/// Assigns a position in the line formation to a given soldier of index i.
+	/// </summary>
+	/// <returns>The position the soldier should set as his target.</returns>
+	/// <param name="index">Index of soldier in formation.</param>
 	Vector3 SetSoldierLineFormation(int index)
 	{
 		float angle = Vector3.Angle(new Vector3(0,0,1), this.transform.forward);
@@ -436,17 +453,26 @@ public class Unit : MonoBehaviour
 		return dir + pivot;
 	}
 	
+	/// <summary>
+	/// Get the local path values and choose the least expensive route around the obstacle.
+	/// </summary>
 	void PotentialFieldPathfind()
 	{	
 		if(terrain.SampleHeight(target) < 1)
 		{
 			//Debug.Log ("Target is in river...");
+			
+			//project forward and see if that is not a river -> this is our new target
 			target = 2.0f * (target - this.transform.position) + this.transform.position;
 			PotentialFieldPathfind();
 		}
 		else
 		{
-			float[] choices = new float[] 
+			float[] choices;
+			
+			//try
+			//{
+				choices = new float[] 
 				{
 					potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[0].x, (int)surroundings[0].z],
 					potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[1].x, (int)surroundings[1].z],
@@ -458,17 +484,21 @@ public class Unit : MonoBehaviour
 					potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[7].x, (int)surroundings[7].z],
 					potentialField.potentialFieldValues[(int)target.x, (int)target.z][(int)surroundings[8].x, (int)surroundings[8].z]
 				};
+				
+				// get rid of negative/0 values of impossibility
+				for(int i=0; i< choices.Length; i++)
+				{
+					if(choices[i] < 0)
+						choices[i] = float.MaxValue;
+				}
+				
+				target = surroundings[choices.ToList().IndexOf(choices.Min())];
+			//}
 			
-			
-			// get rid of negative/0 values of impossibility
-			for(int i=0; i< choices.Length; i++)
-			{
-				if(choices[i] < 0)
-					choices[i] = float.MaxValue;
-			}
-			
-			
-			target = surroundings[choices.ToList().IndexOf(choices.Min())];
+			//catch(System.Exception e)
+			//{
+			//	target = this.transform.position;
+			//}
 		
 		}
 

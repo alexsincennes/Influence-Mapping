@@ -1,6 +1,11 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+/// <summary>
+/// Maps out the potential field maps for each tile in the terrain.
+/// Uses a BFS algorithm with a counter to assign distance values from
+/// the source to each tile.
+/// </summary>
 public class PotentialFieldMapper : MapRenderer
 {
 	// 2d potential field map for each (x,y) coordinate of the map
@@ -48,6 +53,7 @@ public class PotentialFieldMapper : MapRenderer
 		map[x,y] = currentValue;
 		q.Enqueue(new Vector3(x,y, currentValue));
 		
+		// BFS algorithm
 		while(q.Count != 0)
 		{
 			Vector3 curPos = q.Dequeue();
@@ -63,6 +69,7 @@ public class PotentialFieldMapper : MapRenderer
 			
 		}
 
+		// mark unvisited e.g. impassable tiles as very negative
 		for(int i = 0; i < size ; i++)
 		{
 			for(int j = 0; j < size; j++)
@@ -78,11 +85,13 @@ public class PotentialFieldMapper : MapRenderer
 	
 	private void EnqueueAndMarkIfUnmarked(int x_mod, int y_mod, Queue<Vector3> q, Vector3 curPos, bool[,] marked_map, float[,] map)
 	{
+		// eliminate values out of range
 		if((int)curPos.x+x_mod >= size || (int)curPos.x+x_mod < 0)
 			return;
 		if((int)curPos.y+y_mod >= size || (int)curPos.y+y_mod < 0)
 			return;
 		
+		//mark and enqueue not already marked and if it is a passable tile (i.e. not at water level)
 		if(!marked_map[(int)curPos.x+x_mod,(int)curPos.y+y_mod]  && terrain.SampleHeight(new Vector3(curPos.x+x_mod, 0, curPos.y+y_mod)) > 1)
 		{
 			marked_map[(int)curPos.x+x_mod, (int)curPos.y+y_mod] = true;

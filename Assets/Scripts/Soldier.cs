@@ -54,7 +54,6 @@ public class Soldier : MonoBehaviour
 
 	public void Die ()
 	{
-		Debug.Log("DIED!");
 		unit.SignalDeath(this.gameObject);
 
 		GameObject.Destroy(this.gameObject);
@@ -69,7 +68,7 @@ public class Soldier : MonoBehaviour
 			{
 				inside_unit_bounds = true;
 			}
-		}
+		}W
 	}
 	
 	void OnTriggerStay (Collider col)
